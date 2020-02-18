@@ -1,0 +1,94 @@
+%SIGNAL
+PIN  20 =  A 
+PIN  21 =  B 
+PIN   5 = !B0 
+PIN   4 = !B1 
+PIN   3 = !B2 
+PIN   2 = !B3 
+PIN  22 =  C 
+PIN   1 =  CLK 
+PIN  23 =  L 
+PIN   6 = !R 
+PIN  17 =  SA 
+PIN  18 =  SB 
+PIN  19 =  SC 
+%END
+
+%FIELD
+FIELD state_n = SC,SB,SA
+%END
+
+%EQUATION
+A =>
+    SA & !SC
+
+B =>
+    SB & !SC
+
+C =>
+    !SA & !SB & SC
+
+L =>
+    !SC
+
+SA.d  =>
+    !B0 & B1 & !B2 & B3 & !SA & !SB & !SC
+  # !B0 & B1 & B2 & B3 & !SA & SB & !SC
+  # B0 & B1 & B2 & B3 & SA & !SC
+
+SA.ar  =>
+    !R
+
+SA.ck  =>
+    CLK
+
+SA.oe  =>
+    1 
+
+SA.sp SB.sp SC.sp  =>
+    0 
+
+SB.d  =>
+    B0 & B1 & B2 & B3 & SA & SB & !SC
+  # !B0 & B1 & B2 & !B3 & SA & !SB & !SC
+  # B1 & B2 & B3 & !SA & SB & !SC
+
+SB.ar  =>
+    !R
+
+SB.ck  =>
+    CLK
+
+SB.oe  =>
+    0 
+
+SB.sp  =>
+    
+SC.d  =>
+    B0 & B1 & B2 & B3 & !SA & !SB & SC
+  # !B0 & !B1 & B2 & B3 & SA & SB & !SC
+
+SC.ar  =>
+    !R
+
+SC.ck  =>
+    CLK
+
+SC.oe  =>
+    0 
+
+SC.sp  =>
+    
+A.oe  =>
+    1 
+
+B.oe  =>
+    1 
+
+C.oe  =>
+    1 
+
+L.oe  =>
+    1 
+
+%END

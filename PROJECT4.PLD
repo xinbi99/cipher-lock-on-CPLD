@@ -1,0 +1,75 @@
+Name     Project4 ;
+PartNo   00 ;
+Date     12/08/2019 ;
+Revision 01 ;
+Designer Xin Bi ;
+Company  Penn State EE ;
+Assembly None ;
+Location  ;
+Device   v750c ;
+
+/* *************** INPUT PINS *********************/
+PIN    1 = CLK; /*clock signal*/
+PIN    2 = !B3; /*active low buttons B3, B2, B1, B0 and R*/ 
+PIN    3 = !B2;  
+PIN    4 = !B1;
+PIN    5 = !B0;  
+PIN    6 = !R; 
+
+/* *************** OUTPUT PINS *********************/
+PIN    17 = SA; /*state binarys*/ 
+PIN    18 = SB;
+PIN    19 = SC;  
+PIN    20 = A; /*the led lights*/ 
+PIN    21 = B;  
+PIN    22 = C;  
+PIN    23 = L;
+
+/*defining states for the FSM*/
+FIELD state_n = [SC,SB,SA];
+$define S0 'b'000
+$define S1 'b'001
+$define S2 'b'010
+$define S3 'b'011
+$define S4 'b'100
+
+
+/*flip flop control signals*/
+[SC,SB,SA].CK = CLK; /*programmable clock*/
+[SC,SB,SA].OE = 'b'1; /*programmable output enable*/
+[SC,SB,SA].SP = 'b'0; /*synchronous preset disable*/
+[SC,SB,SA].AR = R; /*asynchronous reset set to R*/
+
+/*setting up the output lights logic*/
+A = ( !SC & !SB & SA ) # ( !SC & SB & SA );
+B = ( !SC & SB & ! SA ) # ( !SC & SB & SA );
+C = ( SC & !SB & !SA);
+L = ( !SC & !SB & !SC ) # ( !SC & !SB & SA ) # ( !SC & SB & ! SA ) # ( !SC & SB & SA );
+
+/*FSM*/
+SEQUENCED state_n{
+PRESENT S0
+		IF !B3 & B2 & !B1 & B0 NEXT S1; /* first number is 5 */
+		IF !B3 & !B2 & !B1 & !B0 NEXT S0;
+		IF !(!B3 & B2 & !B1 & B0) NEXT S0;
+		IF R NEXT S0;
+PRESENT S1
+		IF B3 & !B2 & !B1 & B0 NEXT S2; /* second number is 9*/
+		IF !B3 & !B2 & !B1 & !B0 NEXT S1;
+		IF !(B3 & !B2 & !B1 & B0) NEXT S0;
+		IF R NEXT S0;
+PRESENT S2
+		IF !B3 & !B2 & !B1 & B0 NEXT S3; /* third number is 1*/
+		IF !B3 & !B2 & !B1 & !B0 NEXT S2;
+		IF !(!B3 & !B2 & !B1 & B0) NEXT S0;
+		IF R NEXT S0;
+PRESENT S3
+		IF !B3 & !B2 & B1 & B0 NEXT S4; /* final number is 3*/
+		IF !B3 & !B2 & !B1 & !B0 NEXT S3;
+		IF !(!B3 & !B2 & B1 & B0) NEXT S0;
+		IF R NEXT S0;
+PRESENT S4
+		IF !B3 & !B2 & !B1 & !B0 NEXT S4;
+		IF B3 # B2 # B1 # B0 NEXT S0;
+		IF R NEXT S0;
+}
